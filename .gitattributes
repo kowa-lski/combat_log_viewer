@@ -1,0 +1,14 @@
+# Store text with LF in the repository and check it out with Windows line endings,
+# so diffs stay clean whoever commits.
+* text=auto
+
+*.cs       text eol=crlf diff=csharp
+*.xaml     text eol=crlf
+*.csproj   text eol=crlf
+*.config   text eol=crlf
+*.manifest text eol=crlf
+*.md       text eol=crlf
+
+*.png binary
+*.ico binary
+*.exe binary

@@ -1,0 +1,83 @@
+<Window x:Class="CombatLogViewer.ObsSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="OBS recording" Width="520" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" Background="{StaticResource Bg}" FontFamily="Segoe UI" FontSize="13"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+    <Window.Resources>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource DefaultText}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="4,3"/>
+            <Setter Property="Margin" Value="0,3"/>
+        </Style>
+    </Window.Resources>
+
+    <StackPanel Margin="20">
+        <CheckBox x:Name="AutoSaveBox" Foreground="{StaticResource Fg}" FontWeight="SemiBold"
+                  Content="Save the OBS Replay Buffer automatically after each battle"/>
+        <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="20,4,0,14"
+                   Text="When a battle log appears, the viewer asks OBS to save the replay, trims it to start shortly before the battle, and moves it into the Battle folder as recording.mp4. Replays you save with your OBS hotkey right after a battle are handled the same way."/>
+
+        <CheckBox x:Name="CompletedOnlyBox" Foreground="{StaticResource Fg}" Margin="20,0,0,10"
+                  Content="Only save completed runs (over 160s of battle)"
+                  ToolTip="Runs that end early get no recording. Replays you save with your OBS hotkey are always kept."/>
+        <CheckBox x:Name="StartObsBox" Foreground="{StaticResource Fg}" Margin="0,0,0,4"
+                  Content="Start OBS hidden in the system tray when the viewer opens"/>
+        <CheckBox x:Name="CloseObsBox" Foreground="{StaticResource Fg}" Margin="20,0,0,4"
+                  Content="Close it again when the viewer closes" IsEnabled="{Binding IsChecked, ElementName=StartObsBox}"/>
+        <TextBlock x:Name="ObsPathNote" Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="20,0,0,14"/>
+
+        <TextBlock Text="OBS connection" FontWeight="SemiBold"/>
+        <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,2,0,6"
+                   Text="In OBS: Tools → WebSocket Server Settings → tick Enable WebSocket server, then Show Connect Info for the port and password."/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="170"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/><RowDefinition/><RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Host"/>
+            <TextBox x:Name="HostBox" Grid.Column="1"/>
+            <TextBlock Grid.Row="1" Text="Port"/>
+            <TextBox x:Name="PortBox" Grid.Row="1" Grid.Column="1"/>
+            <TextBlock Grid.Row="2" Text="Password"/>
+            <PasswordBox x:Name="PasswordBox" Grid.Row="2" Grid.Column="1" Padding="4,3" Margin="0,3"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal" Margin="170,6,0,14">
+            <Button Content="Test connection" Padding="10,4" Click="Test_Click"/>
+            <TextBlock x:Name="TestResult" Margin="10,0,0,0" TextWrapping="Wrap" MaxWidth="260" Style="{StaticResource MutedText}"/>
+        </StackPanel>
+
+        <TextBlock Text="Timing" FontWeight="SemiBold"/>
+        <Grid Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="170"/>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/><RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Save after the battle ends"/>
+            <TextBox x:Name="DelayBox" Grid.Column="1"/>
+            <TextBlock Grid.Column="2" Text="seconds (time for the stats showcase)" Style="{StaticResource MutedText}" Margin="8,0,0,0"/>
+            <TextBlock Grid.Row="1" Text="Start the clip before battle"/>
+            <TextBox x:Name="LeadInBox" Grid.Row="1" Grid.Column="1"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="seconds" Style="{StaticResource MutedText}" Margin="8,0,0,0"/>
+        </Grid>
+        <TextBlock x:Name="BufferNote" Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,6,0,14"/>
+
+        <TextBlock Text="ffmpeg (for trimming)" FontWeight="SemiBold"/>
+        <TextBox x:Name="FfmpegBox" Margin="0,4,0,2"/>
+        <TextBlock x:Name="FfmpegNote" Style="{StaticResource MutedText}" TextWrapping="Wrap"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Save" IsDefault="True" Padding="18,4" Click="Save_Click"/>
+            <Button Content="Cancel" IsCancel="True" Padding="14,4" Margin="8,0,0,0"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

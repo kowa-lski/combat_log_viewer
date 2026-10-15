@@ -1,0 +1,18 @@
+# Build output
+bin/
+obj/
+
+# Published exes (dotnet publish -o dist\...); share them as release downloads, not commits
+dist/
+
+# Visual Studio / Rider / VS Code user state
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.rsuser
+
+# Leftovers that can appear while the app runs or tests
+*.log
+recording.partial.mp4
