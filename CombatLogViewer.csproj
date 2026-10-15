@@ -10,7 +10,14 @@
     <AssemblyName>CombatLogViewer</AssemblyName>
     <RootNamespace>CombatLogViewer</RootNamespace>
     <Version>1.0.0</Version>
+    <ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The exe's icon above; also embedded so the windows can show it in their title bars.
+         Redraw it with: python tools/make_icon.py -->
+    <Resource Include="app.ico" />
+  </ItemGroup>
 
   <!-- dotnet publish -c Release produces one self-contained exe in bin\Release\...\publish -->
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
