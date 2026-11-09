@@ -184,14 +184,25 @@ public partial class MainWindow : Window
 
     // Dragging a run drags its Battle folder through the shell (ShellDrag), exactly like dragging the
     // folder out of File Explorer, so it can be dropped on a browser upload box or another folder.
+    // The "⠿ Drag" chip next to ▶ Video drags only the recording instead.
     Point dragStart;
     BattleVM? dragRun;
+    bool dragVideo;
 
     void RunList_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         dragRun = RunAt(e.OriginalSource);
+        dragVideo = false;
         dragStart = e.GetPosition(RunList);
+        for (var d = e.OriginalSource as DependencyObject; d != null && d != RunList; d = ParentOf(d))
+        {
+            if (d is Button) { dragRun = null; return; } // a press on ▶ / delete is a click, never a drag
+            if (d is FrameworkElement { Tag: "DragVideo" }) { dragVideo = true; return; }
+        }
     }
+
+    static DependencyObject? ParentOf(DependencyObject d) =>
+        d is FrameworkContentElement fce ? fce.Parent : System.Windows.Media.VisualTreeHelper.GetParent(d);
 
     void RunList_PreviewMouseMove(object sender, MouseEventArgs e)
     {
@@ -200,10 +211,32 @@ public partial class MainWindow : Window
         if (Math.Abs(delta.X) < SystemParameters.MinimumHorizontalDragDistance &&
             Math.Abs(delta.Y) < SystemParameters.MinimumVerticalDragDistance) return;
         dragRun = null;
-        if (!Directory.Exists(run.Battle.Folder)) return;
-        if (ShellDrag.DoDragDrop(run.Battle.Folder)) return;
-        var data = new DataObject(DataFormats.FileDrop, new[] { run.Battle.Folder }); // fallback: plain file drop
+        string? path = dragVideo ? run.Battle.Recording : run.Battle.Folder;
+        if (path == null || !(dragVideo ? File.Exists(path) : Directory.Exists(path))) return;
+        if (ShellDrag.DoDragDrop(path)) return;
+        var data = new DataObject(DataFormats.FileDrop, new[] { path }); // fallback: plain file drop
         DragDrop.DoDragDrop(RunList, data, DragDropEffects.Copy | DragDropEffects.Link);
+    }
+
+    /// <summary>Asks, then sends the run's recording to the Recycle Bin.</summary>
+    async void RecordingDelete_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not BattleVM { Battle.Recording: { } video } run || !File.Exists(video)) return;
+        long bytes = new FileInfo(video).Length;
+        string size = bytes >= 1_000_000 ? $"{bytes / 1e6:N0} MB" : $"{bytes / 1e3:N0} KB";
+        var answer = MessageBox.Show(this,
+            $"Delete the recording for {run.Battle.Date} {run.Battle.Name}?\n\n{video}\n{size}\n\n"
+            + "It goes to the Recycle Bin, so you can still restore it from there. The battle's logs are kept.",
+            "Delete recording", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+        if (answer != MessageBoxResult.Yes) return;
+        RecycleBin.Send(video);
+        if (File.Exists(video))
+        {
+            MessageBox.Show(this, "The recording couldn't be deleted. Is it open in a video player? Close it and try again.",
+                "Delete recording", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+        await LoadAsync();
     }
 
     // While one of our runs is dragged over this window, accept it as a Copy (dropping it here does

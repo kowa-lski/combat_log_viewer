@@ -25,6 +25,45 @@
         </Style>
 
         <!-- ▶ button on runs that have a recording; opens it in the default video player -->
+        <!-- "⠿ Drag" chip on runs with a recording: drags just the video file (see RunList_PreviewMouseMove) -->
+        <Style x:Key="VideoDragChip" TargetType="Border">
+            <Setter Property="Tag" Value="DragVideo"/>
+            <Setter Property="Background" Value="{StaticResource Panel}"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="Cursor" Value="SizeAll"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="ToolTip" Value="Drag the recording onto a web page or folder (just the video, not the logs)"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource Line}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Delete button for a run's recording (asks first, then sends it to the Recycle Bin) -->
+        <Style x:Key="DeleteVideoButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="ToolTip" Value="Delete the recording"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="B" Background="{StaticResource Panel}" CornerRadius="5" Padding="7,4">
+                            <TextBlock x:Name="T" Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="{StaticResource Muted}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource Line}"/>
+                                <Setter TargetName="T" Property="Foreground" Value="#E57373"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="PlayButton" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Focusable" Value="False"/>
@@ -132,8 +171,14 @@
                             </TextBlock>
                         </StackPanel>
                         <TextBlock Style="{StaticResource Grip}" DockPanel.Dock="Left" Margin="0,0,12,0"/>
-                        <Button Style="{StaticResource PlayButton}" DockPanel.Dock="Right" Margin="0,0,6,0" Click="Recording_Click"
-                                Visibility="{Binding HasRecording, Converter={StaticResource Vis}}"/>
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0,0,6,0" VerticalAlignment="Center"
+                                    Visibility="{Binding HasRecording, Converter={StaticResource Vis}}">
+                            <Button Style="{StaticResource PlayButton}" Click="Recording_Click"/>
+                            <Border Style="{StaticResource VideoDragChip}" Margin="4,0,0,0">
+                                <TextBlock Text="⠿ Drag" Foreground="{StaticResource Muted}" FontSize="12.5" FontWeight="SemiBold"/>
+                            </Border>
+                            <Button Style="{StaticResource DeleteVideoButton}" Margin="4,0,0,0" Click="RecordingDelete_Click"/>
+                        </StackPanel>
                         <TextBlock>
                             <Run Text="{Binding Name, Mode=OneWay}" FontSize="20" FontWeight="Bold"/>
                             <Run Text="{Binding StartTime, Mode=OneWay}" FontSize="13" Foreground="{StaticResource Muted}"/>
@@ -176,7 +221,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="30"/>
                         <ColumnDefinition Width="260"/>
-                        <ColumnDefinition Width="250"/>
+                        <ColumnDefinition Width="310"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Style="{StaticResource Grip}"/>
@@ -184,8 +229,14 @@
                         <Run Text="{Binding Name, Mode=OneWay}" FontSize="16" FontWeight="Bold"/>
                         <Run Text="{Binding StartTime, Mode=OneWay}" FontSize="12" Foreground="{StaticResource Muted}"/>
                     </TextBlock>
-                    <Button Grid.Column="2" Style="{StaticResource PlayButton}" HorizontalAlignment="Left" Click="Recording_Click"
-                            Visibility="{Binding HasRecording, Converter={StaticResource Vis}}"/>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Visibility="{Binding HasRecording, Converter={StaticResource Vis}}">
+                        <Button Style="{StaticResource PlayButton}" Click="Recording_Click"/>
+                        <Border Style="{StaticResource VideoDragChip}" Margin="4,0,0,0">
+                                <TextBlock Text="⠿ Drag" Foreground="{StaticResource Muted}" FontSize="12.5" FontWeight="SemiBold"/>
+                            </Border>
+                        <Button Style="{StaticResource DeleteVideoButton}" Margin="4,0,0,0" Click="RecordingDelete_Click"/>
+                    </StackPanel>
                     <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,32,0">
                         <Run Text="Score" FontSize="12" Foreground="{StaticResource Muted}"/>
                         <Run Text="{Binding Score, Mode=OneWay}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource Accent}"/>

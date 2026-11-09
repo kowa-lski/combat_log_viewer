@@ -220,13 +220,17 @@ public static partial class LogReader
         return (duration, enemyHp);
     }
 
-    /// <summary>The battle score in the settlement protobuf: field 27 of the message in top-level field 9.</summary>
+    /// <summary>
+    /// The battle score in the settlement protobuf: field 27 of the settlement message. The game wraps that
+    /// message in top-level field 9 up to 2026-10-24 and field 6 from 2026-10-25, so look in whichever
+    /// top-level message holds it rather than one fixed number.
+    /// </summary>
     public static long? ReadScore(byte[] buf)
     {
         try
         {
-            foreach (var (f, wire, val, start, len) in Fields(buf, 0, buf.Length))
-                if (f == 9 && wire == 2)
+            foreach (var (_, wire, _, start, len) in Fields(buf, 0, buf.Length))
+                if (wire == 2)
                     foreach (var (f2, w2, v2, _, _) in Fields(buf, start, start + len))
                         if (f2 == 27 && w2 == 0) return (long)v2;
         }
